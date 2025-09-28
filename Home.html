@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kabid — Python Developer Portfolio</title>
+  <meta name="description" content="Portfolio of Kabid — Python developer. Interactive single-page HTML/CSS/JS." />
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+  <style>
+    :root{--bg-1:#06071a;--bg-2:#071427;--accent-a:#6f8bff;--accent-b:#00d4ff;--accent-c:#9be15d;--muted:#9aa4b2;--card-border:rgba(255,255,255,0.06);font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:linear-gradient(180deg,var(--bg-1),var(--bg-2));color:#eaf2ff;overflow-x:hidden}
+    .container{max-width:1200px;margin:0 auto;padding:28px}
+
+
+    /* highlight for active nav button */
+    /* stronger highlight for active nav button */
+    .nav-btn.active{
+      color: #ffffff;
+      /* stronger border so the active button reads as 'on' */
+      border-color: rgba(111,139,255,0.30);
+      /* bigger, brighter shadow for depth */
+      box-shadow: 0 14px 42px rgba(79,105,255,0.22);
+      /* subtle lift and scale for emphasis */
+      transform: translateY(-3px) scale(1.04);
+      transition: transform .18s, box-shadow .25s, border-color .18s;
+      /* optional gentle background tint */
+      background: linear-gradient(90deg, rgba(111,139,255,0.12), rgba(0,212,255,0.06));
+    }
+
+    /* make the gradient overlay (the ::before) noticeably stronger */
+    .nav-btn.active::before{
+      opacity: 0.42;          /* increase this to 0.6 for a really bright effect */
+      transform: translateX(0);
+      filter: blur(8px);      /* softens the gradient edge */
+      transition: transform .4s, opacity .28s;
+    }
+
+  /* ===== fix focus + pressed state for nav buttons ===== */
+    .nav-btn{ transition: transform .18s, box-shadow .25s, border-color .18s, background .22s; }
+    .nav-btn:focus{ outline: none; box-shadow: 0 10px 30px rgba(79,105,255,0.08); }
+
+    /* temporary pressed state for non-navigation controls */
+    .nav-btn.pressed{
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 18px 44px rgba(79,105,255,0.18);
+      border-color: rgba(111,139,255,0.26);
+    }
+
+    /* (keep your .nav-btn.active styles as-is / stronger version you already applied) */
+
+    /* ===== fancy CTA buttons (Explore Projects / Get in touch) ===== */
+    .btn, .btn-ghost{
+      transition: transform .18s, box-shadow .24s, background .22s, color .18s;
+      will-change: transform, box-shadow;
+    }
+
+    .btn:hover{
+      transform: translateY(-6px) scale(1.04);
+      box-shadow: 0 20px 60px rgba(79,105,255,0.16);
+    }
+
+    /* solid button press feedback */
+    .btn:active{ transform: translateY(-2px) scale(0.995); }
+
+    /* ghost button - subtle glass lift */
+    .btn-ghost{
+      border:1px solid var(--card-border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.018), transparent);
+    }
+    .btn-ghost:hover{
+      background: linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      transform: translateY(-4px) scale(1.03);
+      color: #ffffff;
+      border-color: rgba(255,255,255,0.12);
+      box-shadow: 0 14px 42px rgba(0,0,0,0.48);
+    }
+    .btn-ghost:active{ transform: translateY(-1px) scale(0.995); }
+
+    /* optional micro-glow on hover for .btn: uses the same gradient overlay approach */
+    .btn::before, .btn-ghost::before{
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      pointer-events: none;
+      transform: translateX(-110%);
+      transition: transform .6s cubic-bezier(.2,.9,.2,1), opacity .42s;
+      opacity: 0.08;
+    }
+    .btn:hover::before, .btn-ghost:hover::before{
+      transform: translateX(0);
+      opacity: 0.22;
+    }
+
+
+
+    /* nav + logo */
+    header.nav{position:fixed;right:28px;top:22px;z-index:140}
+    .nav-list{display:flex;gap:10px;align-items:center}
+    .nav-btn{position:relative;padding:8px 14px;border-radius:999px;background:linear-gradient(90deg,rgba(255,255,255,0.03),transparent);border:1px solid var(--card-border);backdrop-filter:blur(6px);cursor:pointer;color:var(--muted);font-weight:600;overflow:hidden}
+    .nav-btn::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--accent-a),var(--accent-b),var(--accent-c));opacity:0.12;transform:translateX(-110%);transition:transform .65s}
+    .nav-btn:hover::before{transform:translateX(0)}
+    .logo{position:fixed;left:28px;top:20px;font-weight:800;font-size:18px;z-index:150;display:flex;gap:12px;align-items:center}
+    .logo .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(90deg,var(--accent-a),var(--accent-b));box-shadow:0 6px 16px rgba(79,105,255,0.18)}
+
+    /* hero layout */
+    .hero{padding-top:80px;display:grid;grid-template-columns:1fr 480px;gap:36px;align-items:center}
+    .typing{font-weight:900;font-size:56px;height:68px}
+    .kname{background:linear-gradient(90deg,var(--accent-c),var(--accent-b));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:900;font-size:56px}
+    .type-bio{color:var(--muted);font-size:18px;height:24px}
+    .sub{color:var(--muted);margin-top:8px}
+    .cta-row{display:flex;gap:14px;margin-top:18px}
+    .btn{padding:12px 18px;border-radius:12px;font-weight:700;background:linear-gradient(90deg,var(--accent-a),var(--accent-b));border:none;color:#041028;cursor:pointer}
+    .btn-ghost{background:transparent;border:1px solid var(--card-border);color:var(--muted)}
+
+    /* photo panel */
+    .photo-panel{position:relative;height:520px;border-radius:20px;overflow:visible;padding:6px}
+    .photo-bg{position:absolute;inset:0;object-fit:cover;filter:blur(16px) saturate(120%);opacity:.10;transform:translate3d(0,0,0);border-radius:18px;transition:transform .9s ease}
+    .photo-stage{position:absolute;right:12px;top:30px;width:420px;height:460px;border-radius:18px;overflow:hidden;transform-style:preserve-3d;z-index:30}
+    .photo-main img{width:100%;height:100%;object-fit:cover;display:block;transform-origin:center;transition:transform .25s ease}
+    .photo-stage .light-spot{position:absolute;left:50%;top:40%;width:520px;height:520px;border-radius:50%;transform:translate(-50%,-50%);mix-blend-mode:overlay;filter:blur(40px);opacity:0;pointer-events:none;transition:opacity .2s}
+
+    /* caption: frosted, vibrant and high-contrast */
+    .hero-caption{position:absolute;left:18px;bottom:18px;padding:14px 16px;border-radius:12px;background:linear-gradient(90deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03));backdrop-filter:blur(8px) saturate(140%);border:1px solid rgba(255,255,255,0.06);z-index:120;box-shadow:0 8px 30px rgba(2,6,23,0.6)}
+    .hero-caption .name{font-weight:800}
+    .hero-caption .role{color:var(--muted);font-size:12px;margin-top:4px}
+
+    /* projects: fewer, bigger cards, more spacing */
+    section.projects{margin-top:48px}
+    .projects-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:44px 36px}
+    .proj{position:relative;border-radius:18px;padding:20px;background:linear-gradient(180deg,rgba(255,255,255,0.018),transparent);border:1px solid var(--card-border);cursor:pointer;transform-style:preserve-3d;min-height:200px;transition:transform .28s,box-shadow .28s}
+    /* inner card background: subtle dark-blue glass, lighter on hover */
+    .proj-inner{position:relative;z-index:2;border-radius:12px;padding:12px;background:linear-gradient(180deg, rgba(6,18,40,0.28), rgba(6,14,30,0.22));transition:background .22s,transform .22s}
+    .proj:hover .proj-inner{background:linear-gradient(180deg, rgba(15,36,78,0.36), rgba(8,22,48,0.26));transform:translateY(-6px)}
+    .proj:hover{box-shadow:0 48px 120px rgba(0,0,0,0.65);border-color:rgba(255,255,255,0.14)}
+    .proj .proj-light{position:absolute;left:0;top:-30%;width:200%;height:200%;pointer-events:none;mix-blend-mode:overlay;filter:blur(40px);opacity:0;transition:opacity .12s,transform .12s}
+    .p-thumb{width:120px;height:90px;border-radius:12px;overflow:hidden}
+    .p-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+    .p-title{font-weight:800;font-size:18px}
+    .p-desc{color:var(--muted);font-size:13px;margin-top:8px}
+    .p-tags{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+    .p-chip{font-size:12px;padding:7px 9px;border-radius:10px;background:rgba(255,255,255,0.02);color:var(--muted)}
+    .proj{will-change:transform}
+
+    /* social icons animation + sliding cyan gradient overlay */
+    .social{position:relative;overflow:hidden;width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border:1px solid var(--card-border);cursor:pointer;transition:transform .28s,box-shadow .28s,background .28s;color:var(--muted)}
+    .social::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,var(--accent-b),rgba(0,212,255,0.9));opacity:0.08;transform:translateX(-120%);transition:transform .6s cubic-bezier(.2,.9,.2,1),opacity .6s}
+    .social:hover::before{transform:translateX(0);opacity:0.28}
+    .social svg{width:22px;height:22px;transition:transform .28s,filter .28s,fill .28s;color:var(--muted);fill:currentColor}
+    .social:hover{transform:translateY(-10px) scale(1.06);box-shadow:0 18px 50px rgba(0,0,0,0.5);background:linear-gradient(90deg,var(--accent-b),rgba(0,212,255,0.08))}
+    .social:hover svg{transform:scale(1.08);filter:drop-shadow(0 6px 16px rgba(0,150,255,0.12));color:#fff;fill:#fff}
+
+    /* responsive */
+    @media(max-width:1000px){.hero{grid-template-columns:1fr}.photo-stage{position:relative;right:auto;top:auto;margin:22px auto}.projects-grid{grid-template-columns:repeat(2,1fr);gap:28px}}
+    @media(max-width:640px){.projects-grid{grid-template-columns:1fr}.kname{font-size:40px}}
+  </style>
+</head>
+
+<body>
+  <div class="logo"><div class="dot"></div><div>Kabid</div></div>
+  <header class="nav"><nav class="nav-list"><div class="nav-btn" onclick="scrollToId('home')">Home</div><div class="nav-btn" onclick="scrollToId('projects')">Projects</div><div class="nav-btn" onclick="scrollToId('education')">Learning</div><div class="nav-btn" onclick="scrollToId('contact')">Contact</div><div class="nav-btn" onclick="scrollToId('more')">More</div></nav></header>
+
+  <main class="container">
+    <section id="home" class="hero">
+      <div class="hero-intro">
+        <div class="typing"><span id="typeName" class="kname">&nbsp;</span><span id="cursorName" class="cursor"></span></div>
+        <div style="height:28px"><span id="typeBio" class="type-bio"></span><span id="cursorBio" class="cursor"></span></div>
+        <p class="sub">I craft useful Python utilities and polished GUIs. My work focuses on clarity, security and friendly UX. Scroll down to see projects — click any card to open details.</p>
+        <div class="cta-row"><button class="btn" onclick="scrollToId('projects')">Explore Projects</button><button class="btn btn-ghost" onclick="scrollToId('contact')">Get in touch</button><label for="imgUpload" class="nav-btn" style="cursor:pointer">Upload Photo</label><input id="imgUpload" type="file" accept="image/*" style="display:none"></div>
+        <div style="margin-top:16px"><span style="color:var(--muted);font-size:13px">Tech: Python • Flask • Tkinter • Sockets • Automation • ML • Security</span></div>
+      </div>
+
+      <div class="photo-panel" id="photoPanel">
+        <img class="photo-bg" id="photoBg" src="./images/kabid.jpg" alt="kabid bg">
+        <div class="photo-stage" id="photoStage" onclick="scrollToId('contact')">
+          <div class="light-spot" id="stageLight" style="opacity:0;left:50%;top:40%"></div>
+          <div class="photo-main"><img id="mainImg" src="images/kabid.jpg" alt="Kabid"></div>
+        </div>
+        <div class="hero-caption" id="heroCaption"><div class="name">Kabid</div><div class="role">Python Developer</div></div>
+      </div>
+    </section>
+
+    <section id="projects" class="projects">
+      <h2 class="fancy-underline" id="projectsHeading" style="font-size:28px;margin:6px 0 14px 0">Featured Projects</h2>
+      <div class="projects-grid" id="projectsGrid"></div>
+    </section>
+    <br></br>
+    <br></br>
+    <br></br>
+    <section id="education" style="margin-top:36px"><h3 style="font-size:20px">Learning</h3><div style="display:flex;gap:14px;margin-top:10px;flex-wrap:wrap"><div style="flex:1;min-width:260px;background:rgba(255,255,255,0.03);padding:14px;border-radius:12px;border:1px solid var(--card-border)"><div style="font-weight:700">Self-taught & Online Courses</div><div class="muted" style="margin-top:6px">Completed projects covering networking, GUI, web scraping and machine learning foundations.</div></div><div style="flex:1;min-width:260px;background:rgba(255,255,255,0.03);padding:14px;border-radius:12px;border:1px solid var(--card-border)"><div style="font-weight:700">Workshops & Hackathons</div><div class="muted" style="margin-top:6px">Participated in local programming events and built collaborative tools.</div></div></div></section>
+
+    <footer id="contact" class="contact" style="margin-top:40px;padding:30px;border-top:1px dashed rgba(255,255,255,0.03)"><div style="display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap"><div><div style="font-weight:800;font-size:18px">Let’s build something useful</div><div class="muted" style="margin-top:6px">Open to freelance, internships and collaborations.</div></div><div style="display:flex;gap:12px;align-items:center"><div class="social" onclick="window.open('https://github.com/','_blank')" title="Github"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 .5C5.73.5.75 5.48.75 11.75c0 4.93 3.19 9.11 7.61 10.59.56.1.76-.24.76-.53 0-.26-.01-.96-.02-1.88-3.09.67-3.74-1.49-3.74-1.49-.5-1.26-1.22-1.6-1.22-1.6-.99-.68.08-.67.08-.67 1.09.08 1.66 1.12 1.66 1.12.98 1.69 2.57 1.2 3.2.92.1-.72.38-1.2.69-1.48-2.47-.28-5.06-1.24-5.06-5.52 0-1.22.44-2.21 1.16-2.99-.12-.29-.5-1.47.11-3.06 0 0 .95-.31 3.12 1.14a10.8 10.8 0 0 1 2.84-.38c.96 0 1.92.13 2.83.38 2.17-1.45 3.12-1.14 3.12-1.14.61 1.59.23 2.77.11 3.06.72.78 1.16 1.77 1.16 2.99 0 4.29-2.6 5.24-5.08 5.52.39.34.73 1.03.73 2.08 0 1.5-.01 2.71-.01 3.08 0 .29.2.64.77.53C19.06 20.86 22.25 16.68 22.25 11.75 22.25 5.48 17.27.5 12 .5z"/></svg></div><div class="social" onclick="window.open('https://www.linkedin.com/','_blank')" title="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5C4.98 4.88 3.85 6 2.48 6 1.1 6 0 4.88 0 3.5 0 2.11 1.1 1 2.48 1 3.85 1 4.98 2.11 4.98 3.5zM.5 8.98h3.96V24H.5V8.98zM8.98 8.98h3.8v2.06h.05c.53-1 1.84-2.06 3.79-2.06 4.05 0 4.8 2.66 4.8 6.12V24h-3.96v-7.82c0-1.87-.03-4.28-2.61-4.28-2.61 0-3.01 2.04-3.01 4.16V24H8.98V8.98z"/></svg></div><div class="social" onclick="window.open('https://www.facebook.com/','_blank')" title="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12.07C22 6.48 17.52 2 11.93 2S2 6.48 2 12.07C2 17.09 5.98 21.24 11 21.95v-7.05H8.3v-2.84H11V9.34c0-2.7 1.6-4.18 4-4.18 1.16 0 2.38.2 2.38.2v2.6h-1.33c-1.31 0-1.72.81-1.72 1.64v1.98h2.95l-.47 2.84h-2.48V22C18.02 21.24 22 17.09 22 12.07z"/></svg></div><div class="social" id="waBtn" onclick="window.open('https://wa.me/','_blank')" title="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.52 3.48A11.89 11.89 0 0 0 12.04.5 11.93 11.93 0 0 0 .5 12.04 11.9 11.9 0 0 0 3.9 19L2 22.5l3.6-1.02A11.91 11.91 0 0 0 12.04 24c6.6 0 11.98-5.38 11.98-11.96 0-3.19-1.25-6.19-3.5-8.56zM12.04 21.5a9.42 9.42 0 0 1-4.87-1.4l-.35-.21-2.83.8.78-2.76-.22-.36A9.37 9.37 0 1 1 21.42 12.04 9.41 9.41 0 0 1 12.04 21.5z"/></svg></div></div><div style="min-width:220px;text-align:right"><div class="muted">Email</div><a href="mailto:azimaduha@gmail.com" style="font-weight:700;color:hsl(214, 88%, 68%);">azimaduha@gmail.com</a></div></div><div style="margin-top:18px;text-align:center;color:var(--muted);font-size:12px">© <span id="year"></span> Kabid — Built with curiosity and Python.</div></footer>
+  </main>
+
+
+
+<script>
+/* ===========================
+   Portfolio page script — complete replacement
+   - Includes TYPING_SPEED_FACTOR and INTRO_SPEED_FACTOR to slow typing + intro
+   - Project cards, scrollToId, active nav highlighting, improved ripple, photo interactions,
+     upload preview, typing effects, modal helpers, GSAP entrances, etc.
+   =========================== */
+
+/* --- tweak these to slow/speed animations --- */
+const TYPING_SPEED_FACTOR = 2.0;   // 1 = original, >1 = slower typing
+const INTRO_SPEED_FACTOR  = 1.9;   // 1 = original, >1 = slower intro animations
+
+/* placeholder image used when images are missing */
+const SVG_PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="540"><rect width="100%" height="100%" fill="#071427"/><text x="50%" y="50%" fill="#9aa4b2" font-family="Inter,Arial" font-size="20" text-anchor="middle" dominant-baseline="middle">Image not found — Upload a photo</text></svg>'
+);
+
+/* --- projects data --- */
+const PROJECTS = [
+  {id:1,title:'Remote Desktop Controller',desc:'Secure remote-desktop utility with command routing, file transfer & GUI.',tags:['Python','Sockets','Tkinter'],img:'images/project-remote.jpg',live:'#',src:'#'},
+  {id:2,title:'Web Scraper Suite',desc:'Robust scraper toolkit to extract, clean and export structured data.',tags:['Python','Scrapy','Automation'],img:'images/project-scrape.jpg',live:'#',src:'#'},
+  {id:3,title:'Image Classifier (ML)',desc:'CNN experiments and deployment demo with Keras/TensorFlow.',tags:['Python','TensorFlow','ML'],img:'images/project-ml.jpg',live:'#',src:'#'},
+  {id:4,title:'Finance Tracker',desc:'Personal finance manager with CSV import and monthly summaries.',tags:['Python','CLI','Pandas'],img:'images/project-finance.jpg',live:'#',src:'#'},
+  {id:5,title:'Discord Utility Bot',desc:'Automation and moderation bot for communities.',tags:['Python','Discord.py'],img:'images/project-bot.jpg',live:'#',src:'#'},
+  {id:6,title:'Flask REST API',desc:'REST API with token auth and tests for task management.',tags:['Python','Flask','API'],img:'images/project-api.jpg',live:'#',src:'#'}
+];
+
+/* --- tiny utility selectors --- */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+/* --- global sleep helper used by typing --- */
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+/* --- create project cards --- */
+(function renderProjects(){
+  const projectsGrid = document.getElementById('projectsGrid');
+  if(!projectsGrid) return;
+  PROJECTS.forEach(p=>{
+    const card = document.createElement('div'); card.className='proj';
+    card.innerHTML = `
+      <div class="proj-light"></div>
+      <div class="proj-inner">
+        <div style="display:flex;gap:16px;align-items:start">
+          <div class="p-thumb"><img src="${p.img}" alt="${p.title}"></div>
+          <div style="flex:1">
+            <div class="p-title">${p.title}</div>
+            <div class="p-desc">${p.desc}</div>
+            <div class="p-tags">${p.tags.map(t=>`<span class="p-chip">${t}</span>`).join('')}</div>
+          </div>
+        </div>
+      </div>`;
+    const thumb = card.querySelector('.p-thumb img');
+    if(thumb) {
+      thumb.onerror = ()=>thumb.src = SVG_PLACEHOLDER;
+    }
+
+    let swingTween = null;
+    card.addEventListener('mouseenter', ()=>{
+      card.style.zIndex = 80;
+      if(!swingTween && window.gsap){
+        swingTween = gsap.to(card,{rotationZ:6,y:-8,scale:1.02,duration:0.7,yoyo:true,repeat:-1,ease:'sine.inOut'});
+      }
+      const lightEl = card.querySelector('.proj-light');
+      if(lightEl && window.gsap) gsap.to(lightEl,{opacity:1,duration:0.18});
+    });
+
+    card.addEventListener('mousemove',(e)=>{
+      const r = card.getBoundingClientRect(); const px = (e.clientX - r.left)/r.width; const py = (e.clientY - r.top)/r.height;
+      const rx = (py - 0.5) * 8; const ry = (px - 0.5) * -10;
+      if(window.gsap) gsap.to(card,{rotationX:rx,rotationY:ry,duration:0.16,ease:'power3.out'});
+      const light = card.querySelector('.proj-light');
+      if(light && window.gsap){
+        const gx = px*100; const gy = py*100;
+        gsap.to(light,{background:`radial-gradient(600px circle at ${gx}% ${gy}%, rgba(255,255,255,0.12), transparent 12%)`,duration:0.12});
+      }
+    });
+
+    card.addEventListener('mouseleave',()=>{
+      if(swingTween){ swingTween.kill(); swingTween = null; }
+      if(window.gsap) gsap.to(card,{rotationX:0,rotationY:0,rotationZ:0,y:0,scale:1,duration:0.45,ease:'power3.out'});
+      const light = card.querySelector('.proj-light'); if(light && window.gsap) gsap.to(light,{opacity:0,duration:0.35,background:'radial-gradient(600px circle at 50% 40%, rgba(255,255,255,0.0), transparent 12%)'});
+      card.style.zIndex = '';
+    });
+
+    card.addEventListener('click', ()=> openModal(p));
+    projectsGrid.appendChild(card);
+  });
+})();
+
+/* --- safe modal helpers (silently do nothing if DOM nodes missing) --- */
+function openModal(p){
+  const modalWrap = document.getElementById('modalWrap');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalDesc = document.getElementById('modalDesc');
+  const modalTags = document.getElementById('modalTags');
+  const modalThumb = document.getElementById('modalThumb');
+  const liveBtn = document.getElementById('liveBtn');
+  const srcBtn = document.getElementById('srcBtn');
+
+  if(modalTitle) modalTitle.innerText = p.title || '';
+  if(modalDesc) modalDesc.innerText = p.desc || '';
+  if(modalTags){
+    modalTags.innerHTML = '';
+    (p.tags || []).forEach(t=>{
+      const s = document.createElement('span'); s.className='p-chip'; s.innerText = t; modalTags.appendChild(s);
+    });
+  }
+  if(modalThumb && modalThumb.querySelector('img')){
+    const thumbImg = modalThumb.querySelector('img');
+    thumbImg.src = p.img || SVG_PLACEHOLDER;
+    thumbImg.onerror = ()=>thumbImg.src = SVG_PLACEHOLDER;
+  }
+  if(liveBtn && p.live) liveBtn.href = p.live;
+  if(srcBtn && p.src) srcBtn.href = p.src;
+  if(modalWrap) {
+    modalWrap.style.display = 'flex';
+    if(window.gsap) gsap.fromTo('.modal',{y:20,opacity:0},{y:0,opacity:1,duration:.35,ease:'power3.out'});
+  }
+}
+function closeModal(){
+  const modalWrap = document.getElementById('modalWrap');
+  if(modalWrap) modalWrap.style.display='none';
+}
+
+/* --- smooth scroll helper used by nav buttons --- */
+function scrollToId(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const offset = 18; // header offset so fixed header doesn't cover content
+  const rect = el.getBoundingClientRect();
+  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  const targetY = Math.round(rect.top + scrollTop - offset);
+  window.scrollTo({ top: targetY, behavior: 'smooth' });
+}
+
+/* --- photo stage interactions + upload preview --- */
+(function(){
+  const photoStage = document.getElementById('photoStage');
+  const mainImg = document.getElementById('mainImg');
+  const photoBg = document.getElementById('photoBg');
+  const stageLight = document.getElementById('stageLight');
+
+  if(mainImg) mainImg.onerror = ()=> mainImg.src = SVG_PLACEHOLDER;
+  if(photoBg) photoBg.onerror = ()=> photoBg.src = SVG_PLACEHOLDER;
+
+  let last = 0;
+  if(photoStage){
+    photoStage.addEventListener('mousemove',(e)=>{
+      const now = performance.now(); if(now - last < 12) return; last = now;
+      const r = photoStage.getBoundingClientRect(); const px = (e.clientX - r.left)/r.width; const py = (e.clientY - r.top)/r.height;
+      const rx = (py - 0.5) * 8; const ry = (px - 0.5) * -12;
+      if(window.gsap) {
+        gsap.to(photoStage,{rotationX:rx,rotationY:ry,y:-8,scale:1.02,duration:0.24,ease:'power3.out'});
+        if(mainImg) gsap.to(mainImg,{x:(px-0.5)*22,y:(py-0.5)*12,scale:1.04,duration:0.36,ease:'power4.out'});
+        if(photoBg) gsap.to(photoBg,{x:(px-0.5)*40,y:(py-0.5)*24,duration:0.9,ease:'power2.out'});
+        if(stageLight) gsap.to(stageLight,{left:(px*100)+'%',top:(py*100)+'%',opacity:1,duration:0.12});
+      }
+    });
+    photoStage.addEventListener('mouseleave',()=>{
+      if(window.gsap) {
+        gsap.to(photoStage,{rotationX:0,rotationY:0,y:0,scale:1,duration:0.6,ease:'power3.out'});
+        if(mainImg) gsap.to(mainImg,{x:0,y:0,scale:1,duration:0.6});
+        if(photoBg) gsap.to(photoBg,{x:0,y:0,duration:0.8});
+        if(stageLight) gsap.to(stageLight,{opacity:0,duration:0.45});
+      }
+    });
+  }
+
+  const imgUpload = document.getElementById('imgUpload');
+  if(imgUpload){
+    imgUpload.addEventListener('change',(ev)=>{
+      const f = ev.target.files && ev.target.files[0];
+      if(!f) return;
+      const url = URL.createObjectURL(f);
+      if(mainImg) mainImg.src = url;
+      if(photoBg) photoBg.src = url;
+      document.querySelectorAll('.p-thumb img').forEach(el=>{
+        if(!el.complete || el.naturalWidth === 0) el.src = url;
+      });
+    });
+  }
+})();
+
+/* --- typing effects (uses TYPING_SPEED_FACTOR) --- */
+(function typingEffects(){
+  const nameTarget = document.getElementById('typeName');
+  const cursorName = document.getElementById('cursorName');
+  const bioTarget = document.getElementById('typeBio');
+  const cursorBio = document.getElementById('cursorBio');
+
+  (async function(){
+    if(!nameTarget || !cursorName) return;
+    const name='Kabid';
+    cursorName.style.display='inline-block';
+    nameTarget.textContent='';
+    for(let i=0;i<name.length;i++){
+      nameTarget.textContent += name[i];
+      await sleep((80 + Math.random()*80) * TYPING_SPEED_FACTOR); // slowed by TYPING_SPEED_FACTOR
+    }
+    cursorName.style.display='none';
+    if(window.gsap) gsap.fromTo(nameTarget,{filter:'brightness(1)'},{filter:'brightness(1.4)',duration:0.8 * INTRO_SPEED_FACTOR,yoyo:true,repeat:1});
+  })();
+
+  (async function(){
+    if(!bioTarget || !cursorBio) return;
+    const strings=['Python Developer • Security-minded • Problem Solver','I build tools: GUIs, Networks, Automation & ML experiments.'];
+    let idx=0; cursorBio.style.display='inline-block';
+    while(true){
+      const s = strings[idx];
+      bioTarget.textContent = '';
+      for(let i=0;i<s.length;i++){
+        bioTarget.textContent += s[i];
+        await sleep((26 + Math.random()*22) * TYPING_SPEED_FACTOR); // slowed
+      }
+      await sleep(1200 * TYPING_SPEED_FACTOR);
+      for(let i=s.length;i>0;i--){
+        bioTarget.textContent = s.slice(0,i-1);
+        await sleep(16 * TYPING_SPEED_FACTOR);
+      }
+      idx = (idx+1) % strings.length;
+      await sleep(300 * TYPING_SPEED_FACTOR);
+    }
+  })();
+})();
+
+/* --- entrance animations + year filler + social hover (durations slowed by INTRO_SPEED_FACTOR) --- */
+window.addEventListener('load', ()=>{
+  if(window.gsap){
+    gsap.from('.kname',{y:30,opacity:0,duration:0.8 * INTRO_SPEED_FACTOR, delay:0.12 * INTRO_SPEED_FACTOR});
+    gsap.from('.sub',{y:10,opacity:0,duration:0.6 * INTRO_SPEED_FACTOR, delay:0.36 * INTRO_SPEED_FACTOR});
+    gsap.from('#photoStage',{x:120,opacity:0,duration:0.9 * INTRO_SPEED_FACTOR, delay:0.48 * INTRO_SPEED_FACTOR});
+    gsap.from('.proj',{y:24,opacity:0,duration:0.7 * INTRO_SPEED_FACTOR, delay:0.6 * INTRO_SPEED_FACTOR, stagger:0.06 * INTRO_SPEED_FACTOR});
+  }
+  const yearEl = document.getElementById('year'); if(yearEl) yearEl.innerText = new Date().getFullYear();
+  document.querySelectorAll('.hero-caption').forEach(c=>c.style.zIndex=120);
+
+  // social levitation & hover behavior via GSAP
+  document.querySelectorAll('.social').forEach((s)=>{
+    let t = null; s.style.transformOrigin = 'center';
+    s.addEventListener('mouseenter', ()=>{ if(t) t.kill(); if(window.gsap) t = gsap.to(s, {y:-10, scale:1.06, duration:0.28, ease:'power2.out'}); });
+    s.addEventListener('mouseleave', ()=>{ if(t) t.kill(); if(window.gsap) gsap.to(s, {y:0, scale:1, duration:0.4, ease:'power3.out'}); });
+  });
+});
+
+/* ===== improved ripple + blur behavior for .nav-btn (replaces old ripple) ===== */
+(function setupRipplesAndNav(){
+  const navBtns = document.querySelectorAll('.nav-btn');
+  navBtns.forEach(btn=>{
+    const cs = getComputedStyle(btn);
+    if(cs.position === 'static') btn.style.position = 'relative';
+
+    btn.addEventListener('click', (e)=>{
+      // create ripple
+      const ripple = document.createElement('span');
+      const size = Math.max(btn.offsetWidth, btn.offsetHeight) * 1.6;
+      ripple.style.position = 'absolute';
+      ripple.style.width = ripple.style.height = size + 'px';
+      ripple.style.borderRadius = '50%';
+      ripple.style.left = (e.offsetX - size/2) + 'px';
+      ripple.style.top = (e.offsetY - size/2) + 'px';
+      ripple.style.background = 'rgba(255,255,255,0.06)';
+      ripple.style.transform = 'scale(0)';
+      ripple.style.opacity = '1';
+      ripple.style.pointerEvents = 'none';
+      ripple.style.transition = 'transform .6s ease, opacity .6s ease';
+      btn.appendChild(ripple);
+
+      requestAnimationFrame(()=> ripple.style.transform = 'scale(1.25)');
+
+      const cleanup = () => { ripple.remove(); ripple.removeEventListener('transitionend', cleanup); };
+      ripple.addEventListener('transitionend', cleanup);
+      setTimeout(cleanup, 900);
+
+      try { btn.blur(); } catch(err){}
+    });
+  });
+})();
+
+/* ===== active nav highlighting using IntersectionObserver + click/pressed behavior ===== */
+(function setupActiveNav(){
+  const OFFSET = 18; // same offset used in scrollToId
+  const btns = Array.from(document.querySelectorAll('.nav-btn'));
+
+  // build map: sectionId -> button
+  const idForBtn = new Map();
+  btns.forEach(btn=>{
+    const onclick = btn.getAttribute('onclick') || '';
+    const m = onclick.match(/scrollToId\(['"]([^'"]+)['"]\)/);
+    if(m) idForBtn.set(m[1], btn);
+  });
+
+  // wire click feedback:
+  btns.forEach(btn=>{
+    const onclick = btn.getAttribute('onclick') || '';
+    const m = onclick.match(/scrollToId\(['"]([^'"]+)['"]\)/);
+    if(m){
+      btn.addEventListener('click', ()=> {
+        btns.forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        try { btn.blur(); } catch(e){}
+      });
+    } else {
+      btn.addEventListener('click', ()=>{
+        btn.classList.add('pressed');
+        try { btn.blur(); } catch(e){}
+        setTimeout(()=> btn.classList.remove('pressed'), 420);
+      });
+    }
+  });
+
+  // Observe sections for active state
+  const sections = Array.from(idForBtn.keys()).map(id=>document.getElementById(id)).filter(Boolean);
+  if(sections.length === 0) return;
+
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        const btn = idForBtn.get(entry.target.id);
+        if(btn){
+          btns.forEach(b=>b.classList.remove('active'));
+          btn.classList.add('active');
+        }
+      }
+    });
+  }, {
+    root: null,
+    rootMargin: `-${OFFSET}px 0px -40% 0px`,
+    threshold: 0.15
+  });
+
+  sections.forEach(s=>observer.observe(s));
+
+  // initial / fallback setActive on load/resize/orientation change
+  function setActiveByScroll(){
+    let found = null;
+    for(const s of sections){
+      const r = s.getBoundingClientRect();
+      if(r.top - OFFSET <= 10 && r.bottom > 80){
+        found = s; break;
+      }
+    }
+    if(!found) found = sections[0];
+    const btn = idForBtn.get(found.id);
+    btns.forEach(b=>b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+  }
+  window.addEventListener('load', setActiveByScroll);
+  window.addEventListener('resize', setActiveByScroll);
+  window.addEventListener('orientationchange', setActiveByScroll);
+})();
+
+/* ===== ESC to close modal (safe) ===== */
+document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closeModal(); });
+</script>
+
+
+</body>
+</html>
